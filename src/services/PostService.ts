@@ -1,98 +1,70 @@
+import { DataStore } from "./DataStore";
 import { Post } from "../models/Post";
 import { Comment } from "../models/Comment";
 import { Like } from "../models/Like";
-import { ISubject, IObserver } from "../patterns/Observer";
 import { NotificationService } from "./NotificationService";
+import { NotificationType } from "../models/Notification";
 
-export class PostService implements ISubject {
-  private static instance: PostService;
-  public posts: Map<string, Post> = new Map();
-  public comments: Map<string, Comment> = new Map();
-  public likes: Like[] = [];
-  private observers: IObserver[] = [];
-
-  private constructor() {
-    this.addObserver(NotificationService.getInstance());
-  }
-
-  public static getInstance(): PostService {
-    if (!PostService.instance) {
-      PostService.instance = new PostService();
+export class PostService {
+    public createPost(userId: string, content: string): Post {
+        const post = Post.create(userId, content);
+        DataStore.posts.set(post.getId(), post);
+        return post;
     }
-    return PostService.instance;
-  }
 
-  public addObserver(observer: IObserver): void {
-    this.observers.push(observer);
-  }
-
-  public removeObserver(observer: IObserver): void {
-    this.observers = this.observers.filter(obs => obs !== observer);
-  }
-
-  public notifyObservers(actionType: string, payload: any): void {
-    for (const obs of this.observers) {
-      obs.update(actionType, payload);
+    public getPost(postId: string): Post | null {
+        return DataStore.posts.get(postId) || null;
     }
-  }
 
-  public addPost(post: Post): void {
-    this.posts.set(post.getPostId(), post);
-  }
+    public likePost(postId: string, userId: string): Like | null {
+        const post = DataStore.posts.get(postId);
+        if (!post) return null;
 
-  public removePost(postId: string): void {
-    this.posts.delete(postId);
-  }
+        const existingLike = Array.from(DataStore.likes.values())
+            .find(l => l.getPostId() === postId && l.getUserId() === userId);
 
-  public getAllPosts(): Post[] {
-    return Array.from(this.posts.values());
-  }
+        if (existingLike) return existingLike;
 
-  public addComment(comment: Comment): void {
-    this.comments.set(comment.getCommentId(), comment);
-    const post = this.posts.get(comment.getPostId());
-    if (post) {
-      post.incrementComment();
-      this.notifyObservers("COMMENT_ADD", { actorId: comment.getUserId(), targetUserId: post.getUserId(), resourceId: post.getPostId() });
-    }
-  }
+        const like = Like.likePost(postId, userId);
+        DataStore.likes.set(like.getId(), like);
 
-  public removeComment(commentId: string): void {
-    const comment = this.comments.get(commentId);
-    if (comment) {
-      const post = this.posts.get(comment.getPostId());
-      if (post) post.decrementComment();
-      this.comments.delete(commentId);
-    }
-  }
+        post.incrementLikeCount();
 
-  public getComments(postId: string): Comment[] {
-    return Array.from(this.comments.values()).filter(c => c.getPostId() === postId);
-  }
-
-  public likeContent(userId: string, targetId: string, targetType: "POST" | "COMMENT"): void {
-    const idx = this.likes.findIndex(l => l.getUserId() === userId && l.getTargetId() === targetId);
-    if (idx === -1) {
-      this.likes.push(new Like(userId, targetId, targetType));
-      if (targetType === "POST") {
-        const post = this.posts.get(targetId);
-        if (post) {
-           post.incrementLike();
-           this.notifyObservers("LIKE_POST", { actorId: userId, targetUserId: post.getUserId(), resourceId: post.getPostId() });
+        if (post.getUserId() !== userId) {
+            NotificationService.getInstance().notifyUser(post.getUserId(), NotificationType.LIKE, `User ${userId} liked your post ${postId}.`);
         }
-      }
-    }
-  }
 
-  public unlikeContent(userId: string, targetId: string): void {
-    const idx = this.likes.findIndex(l => l.getUserId() === userId && l.getTargetId() === targetId);
-    if (idx > -1) {
-      const like = this.likes[idx];
-      if (like.getTargetType() === "POST") {
-        const post = this.posts.get(targetId);
-        if (post) post.decrementLike();
-      }
-      this.likes.splice(idx, 1);
+        return like;
     }
-  }
+
+    public unlikePost(postId: string, userId: string): boolean {
+        const like = Array.from(DataStore.likes.values())
+            .find(l => l.getPostId() === postId && l.getUserId() === userId);
+
+        if (like) {
+            DataStore.likes.delete(like.getId());
+            
+            const post = DataStore.posts.get(postId);
+            if (post) post.decrementLikeCount();
+            
+            return true;
+        }
+        return false;
+    }
+
+    public addComment(postId: string, userId: string, content: string): Comment | null {
+        const post = DataStore.posts.get(postId);
+        if (!post) return null;
+
+        const comment = Comment.add(postId, userId, content);
+        DataStore.comments.set(comment.getId(), comment);
+
+        post.incrementCommentCount();
+
+        if (post.getUserId() !== userId) {
+            NotificationService.getInstance().notifyUser(post.getUserId(), NotificationType.COMMENT, `User ${userId} commented on your post ${postId}.`);
+        }
+
+        return comment;
+    }
 }

@@ -1,23 +1,29 @@
+import { randomUUID } from "crypto";
+
 export class Follow {
-  private followerId: string;
-  private followeeId: string;
-  private timestamp: Date;
+    private id: string;
+    private followerId: string;
+    private followingId: string;
 
-  constructor(followerId: string, followeeId: string) {
-    this.followerId = followerId;
-    this.followeeId = followeeId;
-    this.timestamp = new Date();
-  }
+    constructor(id: string, followerId: string, followingId: string) {
+        this.id = id;
+        this.followerId = followerId;
+        this.followingId = followingId;
+    }
 
-  public getFollowerId(): string {
-    return this.followerId;
-  }
+    public getId(): string { return this.id; }
+    public getFollowerId(): string { return this.followerId; }
+    public getFollowingId(): string { return this.followingId; }
 
-  public getFolloweeId(): string {
-    return this.followeeId;
-  }
+    public static follow(followerId: string, followingId: string): Follow {
+        return new Follow(randomUUID(), followerId, followingId);
+    }
 
-  public getTimestamp(): Date {
-    return this.timestamp;
-  }
+    public static unfollow(): boolean {
+        return true;
+    }
+
+    public isFollowing(followerId: string, followingId: string): boolean {
+        return this.followerId === followerId && this.followingId === followingId;
+    }
 }

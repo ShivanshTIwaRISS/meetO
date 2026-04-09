@@ -1,45 +1,42 @@
-import { IObserver } from "../patterns/Observer";
-import { Notification } from "../models/Notification";
+import { Notification, NotificationType } from "../models/Notification";
+import { DataStore } from "./DataStore";
 
-export class NotificationService implements IObserver {
-  private static instance: NotificationService;
-  private notifications: Notification[] = [];
+// Observer Interface
+export interface Observer {
+    update(notification: Notification): void;
+}
 
-  private constructor() {}
+export class NotificationService {
+    private static instance: NotificationService;
+    private observers: Map<string, Observer[]> = new Map(); // userId -> Observers
 
-  public static getInstance(): NotificationService {
-    if (!NotificationService.instance) {
-      NotificationService.instance = new NotificationService();
+    private constructor() {}
+
+    public static getInstance(): NotificationService {
+        if (!NotificationService.instance) {
+            NotificationService.instance = new NotificationService();
+        }
+        return NotificationService.instance;
     }
-    return NotificationService.instance;
-  }
 
-  // Implementing IObserver update method
-  public update(actionType: string, payload: any): void {
-      const { actorId, targetUserId, resourceId } = payload;
-      let message = "";
+    public subscribe(userId: string, observer: Observer): void {
+        const userObservers = this.observers.get(userId) || [];
+        userObservers.push(observer);
+        this.observers.set(userId, userObservers);
+    }
 
-      if (actionType === "LIKE_POST") {
-         message = `User ${actorId} liked your post ${resourceId}`;
-      } else if (actionType === "COMMENT_ADD") {
-         message = `User ${actorId} commented on your post ${resourceId}`;
-      } else if (actionType === "FOLLOW_USER") {
-         message = `User ${actorId} started following you.`;
-      }
+    public unsubscribe(userId: string, observer: Observer): void {
+        const userObservers = this.observers.get(userId) || [];
+        this.observers.set(userId, userObservers.filter(obs => obs !== observer));
+    }
 
-      if (message && targetUserId) {
-         const notifId = `notif-${Date.now()}`;
-         const notification = new Notification(notifId, targetUserId, message);
-         notification.sendNotification();
-      }
-  }
+    public notifyUser(userId: string, type: NotificationType, message: string): void {
+        const notification = Notification.sendNotification(userId, type, message);
+        DataStore.notifications.set(notification.getId(), notification);
 
-  public dispatchNotification(notification: Notification): void {
-    this.notifications.push(notification);
-    console.log(`[Notification Sent to User ${notification.getUserId()}]: ${notification.getMessage()}`);
-  }
-
-  public getNotifications(userId: string): Notification[] {
-    return this.notifications.filter(n => n.getUserId() === userId);
-  }
+        const userObservers = this.observers.get(userId) || [];
+        for (const observer of userObservers) {
+            observer.update(notification);
+        }
+    }
 }

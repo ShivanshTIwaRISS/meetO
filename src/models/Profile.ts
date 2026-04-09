@@ -1,31 +1,23 @@
 export class Profile {
-  private userId: string;
-  private bio: string;
-  private avatarUrl: string;
+    private userId: string;
+    private bio: string;
+    private profilePicture: string;
 
-  constructor(userId: string, bio: string = "", avatarUrl: string = "") {
-    this.userId = userId;
-    this.bio = bio;
-    this.avatarUrl = avatarUrl;
-  }
+    constructor(userId: string, bio: string = "", profilePicture: string = "") {
+        this.userId = userId;
+        this.bio = bio;
+        this.profilePicture = profilePicture;
+    }
 
-  public getUserId(): string {
-    return this.userId;
-  }
+    public getUserId(): string { return this.userId; }
+    public getBio(): string { return this.bio; }
+    public getProfilePicture(): string { return this.profilePicture; }
 
-  public getBio(): string {
-    return this.bio;
-  }
+    public updateBio(newBio: string): void {
+        this.bio = newBio;
+    }
 
-  public getAvatarUrl(): string {
-    return this.avatarUrl;
-  }
-
-  public updateBio(newBio: string): void {
-    this.bio = newBio;
-  }
-
-  public updateAvatarUrl(newUrl: string): void {
-    this.avatarUrl = newUrl;
-  }
+    public updateProfilePicture(newPictureUrl: string): void {
+        this.profilePicture = newPictureUrl;
+    }
 }

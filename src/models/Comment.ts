@@ -1,35 +1,32 @@
-import { PostService } from "../services/PostService";
+import { randomUUID } from "crypto";
 
 export class Comment {
-  private commentId: string;
-  private postId: string;
-  private userId: string;
-  private text: string;
-  private createdAt: Date;
+    private id: string;
+    private postId: string;
+    private userId: string;
+    private content: string;
 
-  constructor(commentId: string, postId: string, userId: string, text: string) {
-    this.commentId = commentId;
-    this.postId = postId;
-    this.userId = userId;
-    this.text = text;
-    this.createdAt = new Date();
-  }
+    constructor(id: string, postId: string, userId: string, content: string) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+        this.content = content;
+    }
 
-  public getCommentId(): string { return this.commentId; }
-  public getPostId(): string { return this.postId; }
-  public getUserId(): string { return this.userId; }
-  public getText(): string { return this.text; }
+    public getId(): string { return this.id; }
+    public getPostId(): string { return this.postId; }
+    public getUserId(): string { return this.userId; }
+    public getContent(): string { return this.content; }
 
-  // Functional Methods
-  public add(): void {
-    PostService.getInstance().addComment(this);
-  }
+    public static add(postId: string, userId: string, content: string): Comment {
+        return new Comment(randomUUID(), postId, userId, content);
+    }
 
-  public edit(newText: string): void {
-    this.text = newText;
-  }
+    public edit(newContent: string): void {
+        this.content = newContent;
+    }
 
-  public delete(): void {
-    PostService.getInstance().removeComment(this.commentId);
-  }
+    public delete(): boolean {
+        return true;
+    }
 }

@@ -1,23 +1,25 @@
+import { randomUUID } from "crypto";
+
 export class Like {
-  private userId: string;
-  private targetId: string; // postId or commentId
-  private targetType: "POST" | "COMMENT";
+    private id: string;
+    private postId: string;
+    private userId: string;
 
-  constructor(userId: string, targetId: string, targetType: "POST" | "COMMENT") {
-    this.userId = userId;
-    this.targetId = targetId;
-    this.targetType = targetType;
-  }
+    constructor(id: string, postId: string, userId: string) {
+        this.id = id;
+        this.postId = postId;
+        this.userId = userId;
+    }
 
-  public getUserId(): string {
-    return this.userId;
-  }
+    public getId(): string { return this.id; }
+    public getPostId(): string { return this.postId; }
+    public getUserId(): string { return this.userId; }
 
-  public getTargetId(): string {
-    return this.targetId;
-  }
+    public static likePost(postId: string, userId: string): Like {
+        return new Like(randomUUID(), postId, userId);
+    }
 
-  public getTargetType(): string {
-    return this.targetType;
-  }
+    public unlikePost(): boolean {
+        return true;
+    }
 }

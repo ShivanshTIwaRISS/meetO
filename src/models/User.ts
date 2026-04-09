@@ -1,58 +1,47 @@
-import { AuthService } from "../services/AuthService";
-import { UserService } from "../services/UserService";
+import { randomUUID } from "crypto";
 
 export class User {
-  private userId: string;
-  private username: string;
-  private email: string;
-  private passwordHash: string;
-  private isActive: boolean;
+    private id: string;
+    private username: string;
+    private email: string;
+    private passwordHash: string;
 
-  constructor(userId: string, username: string, email: string, passwordHash: string) {
-    this.userId = userId;
-    this.username = username;
-    this.email = email;
-    this.passwordHash = passwordHash;
-    this.isActive = true;
-  }
+    constructor(id: string, username: string, email: string, passwordHash: string) {
+        this.id = id;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+    }
 
-  public getUserId(): string { return this.userId; }
-  public getUsername(): string { return this.username; }
-  public getEmail(): string { return this.email; }
-  public getPasswordHash(): string { return this.passwordHash; }
-  public getIsActive(): boolean { return this.isActive; }
+    public getId(): string { return this.id; }
+    public getUsername(): string { return this.username; }
 
-  // Functional Methods as requested
-  public register(): void {
-    UserService.getInstance().addUser(this);
-    console.log(`User ${this.username} registered.`);
-  }
+    public static register(username: string, email: string, passwordHash: string): User {
+        return new User(randomUUID(), username, email, passwordHash);
+    }
 
-  public login(): string | null {
-    if (!this.isActive) return null;
-    return AuthService.getInstance().createSession(this.userId);
-  }
+    public login(passwordHashAttempt: string): boolean {
+        return this.passwordHash === passwordHashAttempt;
+    }
 
-  public logout(sessionId: string): void {
-    AuthService.getInstance().invalidateSession(sessionId);
-  }
+    public logout(): void {
+        // Session invalidation is handled by AuthService, but method required by UML
+    }
 
-  public updateAccount(username?: string, email?: string): void {
-    if (username) this.username = username;
-    if (email) this.email = email;
-    console.log(`User ${this.userId} updated account.`);
-  }
+    public updateAccount(username?: string, email?: string): void {
+        if (username) this.username = username;
+        if (email) this.email = email;
+    }
 
-  public deleteAccount(): void {
-    this.isActive = false;
-    console.log(`User ${this.userId} marked as deleted.`);
-  }
+    public deleteAccount(): boolean {
+        return true; // Used by service to flag deletion success
+    }
 
-  public follow(followeeId: string): void {
-    UserService.getInstance().addFollow(this.userId, followeeId);
-  }
+    public follow(targetUserId: string): { followerId: string; followingId: string } {
+        return { followerId: this.id, followingId: targetUserId };
+    }
 
-  public unfollow(followeeId: string): void {
-    UserService.getInstance().removeFollow(this.userId, followeeId);
-  }
+    public unfollow(targetUserId: string): { followerId: string; followingId: string } {
+        return { followerId: this.id, followingId: targetUserId };
+    }
 }

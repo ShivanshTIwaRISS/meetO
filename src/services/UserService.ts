@@ -1,60 +1,67 @@
+import { DataStore } from "./DataStore";
 import { User } from "../models/User";
+import { Profile } from "../models/Profile";
 import { Follow } from "../models/Follow";
-import { ISubject, IObserver } from "../patterns/Observer";
 import { NotificationService } from "./NotificationService";
+import { NotificationType } from "../models/Notification";
 
-export class UserService implements ISubject {
-  private static instance: UserService;
-  public users: Map<string, User> = new Map();
-  public follows: Follow[] = [];
-  private observers: IObserver[] = [];
+export class UserService {
+    public register(username: string, email: string, passwordHash: string): User {
+        const user = User.register(username, email, passwordHash);
+        DataStore.users.set(user.getId(), user);
 
-  private constructor() {
-    this.addObserver(NotificationService.getInstance());
-  }
-
-  public static getInstance(): UserService {
-    if (!UserService.instance) {
-      UserService.instance = new UserService();
+        const profile = new Profile(user.getId(), "", "");
+        DataStore.profiles.set(user.getId(), profile);
+        
+        return user;
     }
-    return UserService.instance;
-  }
 
-  public addObserver(observer: IObserver): void {
-    this.observers.push(observer);
-  }
-
-  public removeObserver(observer: IObserver): void {
-    this.observers = this.observers.filter(obs => obs !== observer);
-  }
-
-  public notifyObservers(actionType: string, payload: any): void {
-    for (const obs of this.observers) {
-      obs.update(actionType, payload);
+    public login(username: string, passwordHashAttempt: string): User | null {
+        const user = Array.from(DataStore.users.values()).find(u => u.getUsername() === username);
+        if (user && user.login(passwordHashAttempt)) {
+            return user;
+        }
+        return null;
     }
-  }
 
-  public addUser(user: User): void {
-    this.users.set(user.getUserId(), user);
-  }
-
-  public getUser(userId: string): User | undefined {
-    return this.users.get(userId);
-  }
-
-  public addFollow(followerId: string, followeeId: string): void {
-    const exists = this.follows.some(f => f.getFollowerId() === followerId && f.getFolloweeId() === followeeId);
-    if (!exists) {
-      this.follows.push(new Follow(followerId, followeeId));
-      this.notifyObservers("FOLLOW_USER", { actorId: followerId, targetUserId: followeeId, resourceId: null });
+    public updateProfile(userId: string, bio: string, profilePicture: string): Profile | null {
+        const profile = DataStore.profiles.get(userId);
+        if (profile) {
+            if (bio) profile.updateBio(bio);
+            if (profilePicture) profile.updateProfilePicture(profilePicture);
+            return profile;
+        }
+        return null;
     }
-  }
 
-  public removeFollow(followerId: string, followeeId: string): void {
-    this.follows = this.follows.filter(f => !(f.getFollowerId() === followerId && f.getFolloweeId() === followeeId));
-  }
+    public followUser(followerId: string, followingId: string): Follow | null {
+        if (followerId === followingId) return null;
 
-  public getFollowingIds(userId: string): string[] {
-    return this.follows.filter(f => f.getFollowerId() === userId).map(f => f.getFolloweeId());
-  }
+        const existingFollow = Array.from(DataStore.followers.values())
+            .find(f => f.isFollowing(followerId, followingId));
+
+        if (existingFollow) return existingFollow;
+
+        const user = DataStore.users.get(followerId);
+        if (!user) return null;
+
+        const followData = user.follow(followingId);
+        const follow = Follow.follow(followData.followerId, followData.followingId);
+        DataStore.followers.set(follow.getId(), follow);
+
+        NotificationService.getInstance().notifyUser(followingId, NotificationType.FOLLOW, `User ${followerId} started following you.`);
+
+        return follow;
+    }
+
+    public unfollowUser(followerId: string, followingId: string): boolean {
+        const follow = Array.from(DataStore.followers.values())
+            .find(f => f.isFollowing(followerId, followingId));
+
+        if (follow) {
+            DataStore.followers.delete(follow.getId());
+            return true;
+        }
+        return false;
+    }
 }
