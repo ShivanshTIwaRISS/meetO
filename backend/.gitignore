@@ -1,0 +1,57 @@
+# 🔐 Environment variables
+.env
+.env.*
+!.env.example
+
+# 📦 Node modules
+node_modules/
+
+# 🧾 Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 🗂️ Build output
+dist/
+build/
+.next/
+out/
+
+# 🧠 Cache
+.cache/
+.tmp/
+temp/
+
+# 🧪 Coverage
+coverage/
+
+# 🧰 IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 🐳 Docker
+docker-compose.override.yml
+
+# 🔑 Keys & Secrets
+*.pem
+*.key
+*.crt
+
+# 📁 OS files
+Thumbs.db
+
+# 📊 Misc
+*.tgz
+*.zip
+
+# 🧵 Redis dump (if local)
+dump.rdb
+
+# 🗃️ Database files (if any local)
+*.sqlite
+*.db
