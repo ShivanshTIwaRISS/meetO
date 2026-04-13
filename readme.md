@@ -16,12 +16,10 @@
 |---|---|
 | **Frontend** | React (TypeScript), Vite, TailwindCSS |
 | **Backend** | Node.js, Express.js (TypeScript) |
-| **Database** | PostgreSQL / MongoDB (via ORM/ODM) |
-| **Authentication** | JWT (JSON Web Tokens), Session Management |
-| **Real-time** | WebSockets (Socket.io) |
-| **File Storage** | Cloudinary / AWS S3 (for media uploads) |
+| **Database** | MongoDB (via ORM/ODM) |
+| **Authentication** | JWT (JSON Web Tokens) |
 | **Build Tools** | Vite (frontend), tsc (backend) |
-| **Version Control** | Git & GitHub |
+| **Version Control** | GitHub |
 
 ---
 
@@ -75,7 +73,7 @@ meetO/
 - View followers and following lists
 
 ### Posts
-- Create posts with media (images/videos)
+- Create posts with media (images)
 - Edit and delete posts
 - View post details with like and comment counts
 
@@ -93,7 +91,6 @@ meetO/
 - Follower and following count on profiles
 
 ### Feed
-- Personalized feed generated from followed users' posts
 - Feed refresh and pagination
 
 ### Direct Messages
@@ -115,7 +112,7 @@ meetO/
 ### Prerequisites
 - Node.js (v18 or above)
 - npm or yarn
-- PostgreSQL or MongoDB running locally
+- MongoDB running locally
 
 ### 1. Clone the Repository
 ```bash
