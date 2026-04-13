@@ -346,4 +346,4 @@ The project is currently running on local machines. All five team members can ru
 
 ## License
 
-This project is developed for academic purposes as part of a System Design course — 2026
+This project is developed for academic purposes as part of a System Design course — 2026.
