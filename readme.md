@@ -16,7 +16,7 @@
 |---|---|
 | **Frontend** | React (TypeScript), Vite, TailwindCSS |
 | **Backend** | Node.js, Express.js (TypeScript) |
-| **Database** | MongoDB (via ORM/ODM) |
+| **Database** | MongoDB (via ORM) |
 | **Authentication** | JWT (JSON Web Tokens) |
 | **Build Tools** | Vite (frontend), tsc (backend) |
 | **Version Control** | GitHub |
