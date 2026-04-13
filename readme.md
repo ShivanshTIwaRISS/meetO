@@ -318,11 +318,11 @@ User -> Frontend -> POST /api/posts -> AuthMiddleware -> PostController
 
 | Name | Contribution |
 |---|---|
-| Vaageesh | Overall system architecture and design, defined the layered MVC structure, designed all class hierarchies and relationships, implemented backend controllers and service layer, applied SOLID principles across the codebase, led the use of Factory and Observer design patterns |
-| Shivansh | Frontend development using React and TypeScript, implemented component-based architecture (Abstraction and Encapsulation in UI layer), handled client-side routing and state management, ensured separation of concerns between UI and business logic |
-| Arun | Designed the complete ER diagram and relational database schema, normalized database structure to eliminate redundancy, defined all primary key and foreign key relationships, integrated ORM for model-to-database mapping, contributed to the UML class diagram |
-| Pratham | Designed and implemented the authentication and session management system, applied the Singleton pattern for auth service, built middleware pipeline using Chain of Responsibility pattern, implemented JWT-based stateless auth to support horizontal scalability |
-| Nav | Designed the Feed generation system using fan-out model, implemented the Notification system using the Observer pattern and event-driven architecture, integrated real-time updates via WebSockets, wrote and documented test cases covering all major features |
+| Vaageesh | Diagrams & Architecture (all UML diagrams, system structure) |
+| Shivansh |  Backend Development (controllers, services, middleware, auth) |
+| Arun | Documentation (project report, schema, design patterns writeup) |
+| Pratham | Frontend Development (React, components, routing, state) |
+| Nav | Documentation & Testing (test cases, setup guides, report sections) |
 
 ---
 
