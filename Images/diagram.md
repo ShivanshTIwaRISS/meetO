@@ -441,7 +441,7 @@ classDiagram
 
 **Backend:** Node.js, Express 5, TypeScript
 
-**Database:** In-Memory (Models)
+**Database:** MongoDB
 
 **Cache & Queue:** Redis, ioredis, BullMQ
 
